@@ -1,0 +1,186 @@
+\documentclass[journal]{IEEEtran}
+
+\ifCLASSINFOpdf
+
+\else
+
+\fi
+
+\usepackage[spanish]{babel}
+\hyphenation{op-tical net-works semi-conduc-tor}
+\usepackage{graphicx}
+\usepackage{caption}
+\usepackage{float}
+\usepackage{multirow}
+\captionsetup{justification=centering}
+\renewcommand{\IEEEkeywordsname}{{\bfseries Palabras claves:}}
+\renewcommand{\thetable}{\arabic{table}}
+\usepackage{amsmath, nccmath}
+\usepackage{esdiff}
+\usepackage[math]{cellspace}
+\setlength{\cellspacetoplimit}{2pt}
+\setlength{\cellspacebottomlimit}{2pt}
+\usepackage[usenames]{color}
+\usepackage{amsmath}
+\graphicspath{ {D:\Facultad\Vehiculos Inteligentes\PROYECTO FINAL\INFORME\Imagenes} }
+
+
+\begin{document}
+
+\title{FUSIÓN DE DATOS DE TEMPERATURA MEDIANTE EL FILTRO DE KALMAN}
+
+
+\author{Facundo Ortiz (ING-4495) \textit{Faaortiz@gmail.com} - Leonel Wirth (ING-5143)  \textit{Leo\_wirth@gmail.com}}% <-this % stops a space
+
+
+
+\markboth{INTRODUCCIÓN A VEHÍCULOS INTELIGENTES, FACULTAD DE INGENIERÍA- UNIVERSIDAD NACIONAL DEL COMAHUE }%
+{Shell \MakeLowercase{\textit{et al.}}: Bare Demo of IEEEtran.cls for Journals}
+
+
+
+
+% make the title area
+\maketitle
+
+% As a general rule, do not put math, special symbols or citations
+% in the abstract or keywords.
+
+% Note that keywords are not normally used for peerreview papers.
+\begin{IEEEkeywords}
+KALMAN-FUSIÓN-PRECISIÓN
+\end{IEEEkeywords}
+
+\IEEEpeerreviewmaketitle
+
+\section{Resumen}
+\section{Objetivo}
+El objetivo principal de este trabajo es obtener mediciones de temperatura sobre una hotbed(cama caliente) de una impresora 3D, a partir de sensores con distintas características como resolución, precision, velocidad de muestreo y principios físicos de medición para realizar una fusión de estos y lograr una estimación más precisa a través del filtro de Kalman.
+\section{Motivación}
+La razón por la cual decidimos
+realizar este trabajo, es poder generar, con dos sensores
+de temperatura de no tal alta precision, un instrumento de mayor
+calidad de medición y menos susceptible al ruido y la forma
+de realizar esto es con el filtro Kalman.
+\section{Alcance del trabajo y Consideraciones}
+Con el desarrollo del trabajo se espera poder obtener un estimador de temperatura robusto que se adapte de forma optima a cualquier variación de temperatura que se presente en la hotbed, obteniendo resultados mas precisos al que se obtiene con los sensores por separado.
+Dentro del trabajo a realizar, se considera que el ruido que afecta a cada uno de los sensores es Gaussiano, y las varianzas y correlaciones del ruido en ambos sensores se obtiene experimentalmente. Como la hotbed presenta la posibilidad del control de la temperatura a través de una a señal de tension, se prende modelar el sistema a implementar utilizando una señal de entrada del tipo escalón para así luego tratarla y obtener la respuesta al impulso.
+
+\section{Marco Teórico}
+El filtro de Kalman es un modelo matemático recursivo que se basa en el modelo de espacio de estados y que permite estimar un estado o un conjunto estos de forma optima, a partir de  información de tiempos anteriores. \textbf{El filtro posee la característica de que en caso de que el sistema de interés e lineal y que el ruido que lo afecta es Gaussiano, entonces el estimador MAP, coincide con el estimador MMSE y . Para el caso en que el ruido no es Gaussiano, entonces el filtro es optimo en el sentido de minimizar el error cuadrático medio.....( El marce menciona que si el sistema es lineal y el ruido es gaussiano, el estimador MAP coindice con el MMSE(minimzacion de error cuadratico medio y en caso no ser gaussiano, el filtro es optimo en sentido de minimizacion del error cuadratico medio, queria poner algo relacionado a eso xd}
+
+Considerando que el sistema de interés es lineal y que el ruido que lo afecta a este es Gaussiano, la ecuación de estados que lo representa esta dado por: 
+
+\begin{equation}
+x_{k}=Ax_{k-1}+Bu_{k-1}+v_{k-1}
+\label{eq:1}
+\end{equation}
+
+
+El vector de medición esta dado por:
+\begin{equation}
+z_{k}=Hx_{k}+w_{k}
+\label{eq:2}
+\end{equation}
+
+
+Donde para \ref{eq:1}, $x_{k}$ representa el vector de estados, A es la matriz de transición y contiene la dinámica del sistema, B es la matriz de control y es la que pondera a la acción de control u. Con \ref{eq:2} se representa que se conoce como se relacionan las mediciones con las variables que se busca estimar. El vector $z_{k}$ representa la medición y la matriz H es la matriz de observación. Tanto A como B y H podrían tener una dependencia temporal, lo que implica un sistema variante en el tiempo.
+ Lo desconocido del modelo es incorporado con las variable $v_{k}$ y $w_{k}$y  que representa el ruido del proceso. Para el análisis, se considera que estas señales cumplen con la siguiente característica.
+ \begin{equation}
+ N(V)\sim(0,Q)
+ \label{eq:3}
+ \end{equation}
+
+
+ \begin{equation}
+ N(W)\sim(0,R)
+  \label{eq:4}
+ \end{equation}
+ 
+ Donde Q y R representa la covarianza de $v_{k}$ y $w_{k}$.
+
+Ya definido esto, ahora se determina a la estimación de un vector de estados a posteriori \^{x$_k^-$} en función de la estimación a priori \^{x$_k$} como:
+
+ \begin{equation}
+\hat{x}_k=\hat{x}_k^-+K(z_k+H\hat{x}_k^-)
+  \label{eq:5}
+ \end{equation}
+
+Esta ultima representa la estimación de estados en un tiempo siguiente en función de una combinación lineal de un estado estimado a priori y una diferencia ponderada entre una medida real y una predicción de esta medida. 
+
+\textbf{Falta cerrar, no se si aca correspondería mencionar algo de sensores y cosas varias, modelo del sistema y esas weas raras}\\
+
+
+\section{Desarrollo}
+El desarrollo de este trabajo se estructura en 3 etapas. Inicialmente se procede a la caracterización de sensores a implementar,luego se caracterización de modelo del sistema que se utiliza y por ultimo se realizan los ensayos en cuestión. 
+Los sensores que se utilizan son el DHT 22 y el DALLAS DS18B20. Dichos sensores cuentan con características notablemente distintas, como por ejemplo precisión, rango y variabilidad de temperatura, entre otras. 
+Para la obtención y almacenado de datos se utiliza la placa de desarrollo Arduino Nano y el datalogger \textbf{(no me acuerdo el nombre, VER DONDE ENCAJAR LO DE LAS LIBRERIAS QUE TAMBIEN ESTABA BUENO MENCIONAR ESO)}. Para el tratado y procesamiento de datos se utiliza la herramienta computacional MATLAB.
+
+ \subsection{Caracterización de sensores}
+ Para implementar satisfactoriamente el filtro de Kalman es primordial conocer las características de los sensores a utilizar. A partir de este primer ensayo se pretende determinar el ruido inherente presente en cada uno de los sensores  anteriormente mencionados. Este consiste básicamente en analizar la variación que se presenta en las señales generadas por los sensores una vez que se alcanzo una temperatura estacionaria.
+ 
+ Ya montado todo el sistema de medición, se procede a establecer la temperatura de ensayo de la hotbed. La temperatura se obtiene aplicando una tension sobre una resistencia ubicada por debajo de la hotbed. El resultado de este ensayo se observa en la Figura.
+ 
+ Eliminando los datos que no corresponden al estado estacionario y procesando la información se obtiene que la varianza de los sensores esta dada por
+ 
+ \[\sigma^2_{DHT22}=0.0316\]
+ \[\sigma^2_{DALLAS}=0.0229\]
+ 
+\subsection{Caracterización del sistema}
+Una vez caracterizado los sensores, es necesario conocer el modelo en variables de estado que describen al sistema. Para eso se propone una ecuación temporal inicial que establece  la relación entre la temperatura de la hotbed y la tensión aplicada sobre una resistencia. Considerando esto, se propone: 
+
+\begin{equation}
+y_{t}=K(1-e^{\frac{-t}{\tau}})u_{t}
+\label{eq:6}
+\end{equation}
+  
+
+  
+ La señal $u_t$ representa la señal de tensión de entrada que se aplicada sobre la resistencia, las constantes K y $\tau$ son variables que determinan la amplitud máxima y la rapidez que posee el sistema planteado para alcanzar el valor estacionario de temperatura. Estas constantes se determinan experimentalmente. Para esto se establece una tensión de 12V de entrada y se registra la temperatura con ambos sensores hasta que estos alcanzan la temperatura de estado estacionario. 
+  Ya conocida esta curva, se calcula K y $\tau$ a partir de la temperatura máxima que se alcanza y en que valor temporal se alcanza el 66\% de dicho valor. De este análisis se obtiene:
+  
+ \[K=95\]
+ \[\tau=260.3 seg\]
+ 
+ La ecuación \ref{eq:6} representa la respuesta al escalón, por lo que para obtener la respuesta al impulso se deriva esta y se aplica la transformada de Laplace obteniéndose: 
+ 
+ \begin{equation}
+H(s)=\frac{7.916}{260.3s+1 }
+\label{eq:7}
+\end{equation}
+
+  A partir de esta, se discretiza el sistema utilizando un mantenedor de orden cero. El resultado se observa en la siguiente ecuación.
+  
+   \begin{equation}
+H(z)=7.916\frac{(1-e^{-1/260.3})}{z-e^{-1/260.3}}
+\label{eq:7}
+\end{equation}
+
+A partir de \ref{eq:7} se obtiene la representación en variables de estado de tiempo discreto, utilizando el comando tf2ss(), obteniendo: 
+ \[A=0.996\]
+ \[B=1\]
+ \[C=0.0303\]
+ \[D=0\]
+
+\textbf{Ver sii queremos agregar la resputa al escalon del sistema que obtuvimos como forma de verificación asasdasdas}
+
+\subsection{Ensayos}
+   
+\section{Resultados}
+\section{Conclusión}
+
+
+\vspace{1cm} 
+\begin{thebibliography}{10}
+\bibitem{IEEEtr}
+https://www.arduino.cc/
+
+
+\bibitem{IEEEtr}
+https://www.sparkfun.com/datasheets/Sensors/Temperature/DHT22.pdf
+
+\bibitem{IEEEtr}
+https://pdf1.alldatasheet.com/datasheet-pdf/view/227473/DALLAS/18B20.html
+
+\end{thebibliography}
+\end{document}
